@@ -39,6 +39,14 @@ app.get("/products/:id", (req, res) => {
 
 app.put("/products/:id", (req, res) => {
   //   res.send(`Update product with ID: ${req.params.id};`);
+  const product = products.find((item) => item.id === parseInt(req.params.id));
+  if (!product) return res.status(404).send("Product not found");
+  product.name = req.body.name;
+  product.category = req.body.category;
+  product.price = req.body.price;
+  product.stock = req.body.stock;
+
+  res.json(product);
 });
 
 app.delete("products/:id", (req, res) => {

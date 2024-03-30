@@ -31,7 +31,7 @@ app.post("/products", (req, res) => {
   res.json(newProduct);
 });
 
-app.get("/product/:id", (req, res) => {
+app.get("/products/:id", (req, res) => {
   const product = products.find((item) => item.id === parseInt(req.params.id));
   if (!product) return res.status(404).send("Product not found");
   res.json(product);

@@ -51,10 +51,10 @@ app.put("/products/:id", (req, res) => {
   if (!product) return res.status(404).send("Product not found");
   const isValidated = validateProduct(req.body);
   if (!isValidated) return res.status(400).send("Data type is incorrect.");
-  product.name = req.body.name;
-  product.category = req.body.category;
-  product.price = Number.parseFloat(req.body.price);
-  product.stock = Number.parseInt(req.body.stock);
+  product.name = req.body.name ?? product.name;
+  product.category = req.body.category ?? product.category;
+  product.price = Number.parseFloat(req.body.price ?? product.price);
+  product.stock = Number.parseInt(req.body.stock ?? product.stock);
   res.json(product);
 });
 
@@ -70,12 +70,17 @@ app.delete("/products/:id", (req, res) => {
 });
 
 const validateProduct = (product) => {
-  const validatedPrice = validator.isDecimal(product.price.toString(), {
-    decimal_digits: "1,2",
-  });
-  const validatedStock = validator.isInt(product.stock.toString());
-  if (validatedPrice && validatedStock) return true;
-  return false;
+  const validatedPrice =
+    product.price != undefined
+      ? validator.isDecimal(product.price.toString(), {
+          decimal_digits: "1,2",
+        })
+      : true;
+  const validatedStock =
+    product.stock != undefined
+      ? validator.isInt(product.stock.toString())
+      : true;
+  return validatedPrice && validatedStock;
 };
 
 app.listen(port, () => {

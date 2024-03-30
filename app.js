@@ -2,6 +2,13 @@ const express = require("express");
 const app = express();
 const port = 30000;
 
+app.use((req, res, next) => {
+  console.log(`${req.method} request for ${req.url}`);
+  next();
+});
+
+app.use(express.json());
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

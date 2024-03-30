@@ -1,3 +1,5 @@
+const validator = require("validator");
+
 const express = require("express");
 const app = express();
 const port = 30000;
@@ -27,6 +29,10 @@ app.post("/products", (req, res) => {
     price: req.body.price,
     stock: req.body.stock,
   };
+  const isValidated = validateProduct(newProduct);
+  if (!isValidated) return res.status(404).send("Data type is incorrect.");
+  newProduct.price = Number.parseFloat(req.body.price);
+  newProduct.stock = Number.parseInt(req.body.stock);
   products.push(newProduct);
   res.json(newProduct);
 });
@@ -41,11 +47,12 @@ app.put("/products/:id", (req, res) => {
   //   res.send(`Update product with ID: ${req.params.id};`);
   const product = products.find((item) => item.id === parseInt(req.params.id));
   if (!product) return res.status(404).send("Product not found");
+  const isValidated = validateProduct(req.body);
+  if (!isValidated) return res.status(404).send("Data type is incorrect.");
   product.name = req.body.name;
   product.category = req.body.category;
-  product.price = req.body.price;
-  product.stock = req.body.stock;
-
+  product.price = Number.parseFloat(req.body.price);
+  product.stock = Number.parseInt(req.body.stock);
   res.json(product);
 });
 
@@ -59,6 +66,15 @@ app.delete("/products/:id", (req, res) => {
   const deletedProduct = products.splice(idx, 1);
   res.json(deletedProduct);
 });
+
+const validateProduct = (product) => {
+  const validatedPrice = validator.isDecimal(product.price.toString(), {
+    decimal_digits: "1,2",
+  });
+  const validatedStock = validator.isInt(product.stock.toString());
+  if (validatedPrice && validatedStock) return true;
+  return false;
+};
 
 app.listen(port, () => {
   console.log(`Server runing at <http://localhost>:${port}/`);

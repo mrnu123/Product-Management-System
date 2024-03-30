@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const port = 30000;
 
+const products = [];
+
 app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
@@ -14,15 +16,29 @@ app.get("/", (req, res) => {
 });
 
 app.get("/products", (req, res) => {
-  res.send("List of products");
+  res.json(products);
 });
 
 app.post("/products", (req, res) => {
-  res.send("Add a new product");
+  const newProduct = {
+    id: products.length + 1,
+    name: req.body.name,
+    category: req.body.category,
+    price: req.body.price,
+    stock: req.body.stock,
+  };
+  products.push(newProduct);
+  res.json(newProduct);
+});
+
+app.get("/product/:id", (req, res) => {
+  const product = products.find((item) => item.id === parseInt(req.params.id));
+  if (!product) return res.status(404).send("Product not found");
+  res.json(product);
 });
 
 app.put("/products/:id", (req, res) => {
-  res.send(`Update product with ID: ${req.params.id}`);
+  //   res.send(`Update product with ID: ${req.params.id};`);
 });
 
 app.delete("products/:id", (req, res) => {

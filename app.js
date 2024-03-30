@@ -49,8 +49,15 @@ app.put("/products/:id", (req, res) => {
   res.json(product);
 });
 
-app.delete("products/:id", (req, res) => {
+app.delete("/products/:id", (req, res) => {
   res.send(`Delete product with ID: ${req.params.id}`);
+  const idxProduct = products.findIndex(
+    (item) => item.id === parseInt(req.body.id)
+  );
+  const productNotFound = idxProduct === -1;
+  if (productNotFound) return res.status(404).send("Product not found");
+  const deletedProduct = products.splice(idx, 1);
+  res.json(deletedProduct);
 });
 
 app.listen(port, () => {

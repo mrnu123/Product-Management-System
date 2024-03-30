@@ -27,12 +27,14 @@ app.post("/products", (req, res) => {
     name: req.body.name,
     category: req.body.category,
     price: req.body.price,
-    stock: req.body.stock,
+    stock: req.body.stock ?? 0,
   };
+  const isBadRequest = req.body.price === undefined;
+  if (isBadRequest) return res.status(400).send("Bad request");
   const isValidated = validateProduct(newProduct);
-  if (!isValidated) return res.status(404).send("Data type is incorrect.");
-  newProduct.price = Number.parseFloat(req.body.price);
-  newProduct.stock = Number.parseInt(req.body.stock);
+  if (!isValidated) return res.status(404);
+  newProduct.price = Number.parseFloat(newProduct.price);
+  newProduct.stock = Number.parseInt(newProduct.stock);
   products.push(newProduct);
   res.json(newProduct);
 });
@@ -48,11 +50,11 @@ app.put("/products/:id", (req, res) => {
   const product = products.find((item) => item.id === parseInt(req.params.id));
   if (!product) return res.status(404).send("Product not found");
   const isValidated = validateProduct(req.body);
-  if (!isValidated) return res.status(404).send("Data type is incorrect.");
-  product.name = req.body.name;
-  product.category = req.body.category;
-  product.price = Number.parseFloat(req.body.price);
-  product.stock = Number.parseInt(req.body.stock);
+  if (!isValidated) return res.status(400).send("Data type is incorrect.");
+  product.name = req.body.name ?? product.name;
+  product.category = req.body.category ?? product.category;
+  product.price = Number.parseFloat(req.body.price ?? product.price);
+  product.stock = Number.parseInt(req.body.stock ?? product.stock);
   res.json(product);
 });
 
@@ -68,12 +70,17 @@ app.delete("/products/:id", (req, res) => {
 });
 
 const validateProduct = (product) => {
-  const validatedPrice = validator.isDecimal(product.price.toString(), {
-    decimal_digits: "1,2",
-  });
-  const validatedStock = validator.isInt(product.stock.toString());
-  if (validatedPrice && validatedStock) return true;
-  return false;
+  const validatedPrice =
+    product.price != undefined
+      ? validator.isDecimal(product.price.toString(), {
+          decimal_digits: "1,2",
+        })
+      : true;
+  const validatedStock =
+    product.stock != undefined
+      ? validator.isInt(product.stock.toString())
+      : true;
+  return validatedPrice && validatedStock;
 };
 
 app.listen(port, () => {

@@ -51,6 +51,20 @@ app.put("/products/:id", (req, res) => {
   if (!product) return res.status(404).send("Product not found");
   const isValidated = validateProduct(req.body);
   if (!isValidated) return res.status(400).send("Data type is incorrect.");
+  product.name = req.body.name;
+  product.category = req.body.category;
+  product.price =
+    req.body.price != undefined ? Number.parseFloat(req.body.price) : null;
+  product.stock =
+    req.body.stock != undefined ? Number.parseInt(req.body.stock) : null;
+  res.json(product);
+});
+app.patch("/products/:id", (req, res) => {
+  //   res.send(`Update product with ID: ${req.params.id};`);
+  const product = products.find((item) => item.id === parseInt(req.params.id));
+  if (!product) return res.status(404).send("Product not found");
+  const isValidated = validateProduct(req.body);
+  if (!isValidated) return res.status(400).send("Data type is incorrect.");
   product.name = req.body.name ?? product.name;
   product.category = req.body.category ?? product.category;
   product.price = Number.parseFloat(req.body.price ?? product.price);
